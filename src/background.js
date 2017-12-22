@@ -3,6 +3,7 @@
 // It doesn't have any windows which you can see on screen, but we can open
 // window from here.
 
+var PouchDB = require('pouchdb')
 import path from "path";
 import url from "url";
 import { app, Menu } from "electron";
@@ -31,6 +32,31 @@ if (env.name !== "production") {
 }
 
 app.on("ready", () => {
+  const ID = 'myId';
+  var db = new PouchDB('temp/mydb');
+  var testData = { 'one': '111', 'two': '222' };
+  db.get(ID)
+    .then((record) => {
+      console.log('Record found!')
+      console.log(record)
+    })
+    .catch((err) => {
+      console.log(err)
+      if (err.name === 'not_found') {
+        console.log('Record not found - writing it now...')
+        var params = { _id: ID, }
+        for (let key in testData) params[key] = testData[key]
+        return db
+          .put(params)
+          .catch((err) => {
+            console.log(err)
+          })
+      } else {
+        console.log(err)
+      }
+    })
+
+
   setApplicationMenu();
 
   const mainWindow = createWindow("main", {
